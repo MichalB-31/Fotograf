@@ -1,98 +1,126 @@
 import json
+import os
 from tkinter import filedialog
-from PIL import Image, ImageTk
+import tkinter as tk
+import cv2
 
 class CocoManager:
-    def __init__(self, canvas):
-        self.data = {
+    """Klasa do zarządzania plikami COCO (zapis i odczyt)."""
+    def __init__(self, app):
+        self.app = app
+        self.coco_folder = ""
+
+    def save_coco(self, image_files, annotations, classes, image_data):
+
+        def serialize_exif(exif_data):
+            serialized = {}
+            for k, v in exif_data.items():
+                if isinstance(v, tuple):
+                    serialized[k] = tuple(float(x) if isinstance(x, (int, float)) else str(x) for x in v)
+                elif isinstance(v, bytes):
+                    serialized[k] = v.decode('utf-8', errors='replace')
+                else:
+                    serialized[k] = str(v)
+            return serialized
+
+        coco_data = {
             "images": [],
             "annotations": [],
-            "categories": [],
-            "info": {},
+            "categories": [{"id": i + 1, "name": class_name} for i, class_name in enumerate(classes)],
+            "info": {
+                "images_data": {
+                    image_filename: {
+                        "predefined_data": image_data.get(image_filename, {}).get("predefined_data", {}),
+                        "dynamic_data": image_data.get(image_filename, {}).get("dynamic_data", {}),
+                        "exif": serialize_exif(image_data.get(image_filename, {}).get("exif", {}))
+                    } for image_filename in image_files
+                }
+            }
         }
-        self.annotation_id = 1
-        self.category_id_map = {}
-        self.annotations = []
-        self.categories = [{"id": 1, "name": "default"}]
-        self.images = []
-        self.canvas = canvas
 
-    def add_image(self, file_name, width, height):
-        image_id = len(self.data["images"]) + 1
-        self.data["images"].append({
-            "id": image_id,
-            "file_name": file_name,
-            "width": width,
-            "height": height
-        })
-        return image_id
+        annotation_id = 1
+        for image_id, image_filename in enumerate(image_files):
+            annotations_for_image = annotations.get(image_filename, [])
+            if image_filename in image_files:
+                image_path = os.path.join(self.app.folder_manager.image_folder, image_filename)
 
-    def add_category(self, object_name):
-        if object_name not in self.category_id_map:
-            category_id = len(self.data["categories"]) + 1
-            self.data["categories"].append({
-                "id": category_id,
-                "name": object_name,
-            })
-            self.category_id_map[object_name] = category_id
-        return self.category_id_map[object_name]
+                if not os.path.exists(image_path):
+                    print(f"Błąd: Obraz {image_path} nie istnieje.")
+                    continue
 
-    def add_annotation(self, image_id, x1, y1, x2, y2, object_name):
-        category_id = self.add_category(object_name)
+                img = cv2.imread(image_path)
 
-        width = abs(x2 - x1)
-        height = abs(y2 - y1)
+                if img is None:
+                    print(f"Błąd: Nie można wczytać obrazu {image_path}.")
+                    continue
 
-        self.data["annotations"].append({
-            "id": self.annotation_id,
-            "image_id": image_id,
-            "category_id": category_id,
-            "bbox": [x1, y1, width, height],
-            "area": width * height,
-            "iscrowd": 0
-        })
-        self.annotation_id += 1
+                height, width, _ = img.shape
 
-    def add_metadata(self, metadata):
-        """Dodaj metadane"""
-        self.data["info"].update(metadata)
+                coco_data["images"].append({
+                    "id": image_id + 1,
+                    "width": width,
+                    "height": height,
+                    "file_name": image_filename,
+                })
 
-    def save_to_file(self, file_path):
-        import json
-        with open(file_path, "w") as f:
-            json.dump(self.data, f, indent=4)
+                for annotation in annotations_for_image:
+                    bbox = annotation["bbox"]
+                    class_name = annotation["class"]
+                    category_id = classes.index(class_name) + 1
 
-    def load_from_coco(self, file_path, view_manager):
-        with open(file_path, 'r') as f:
-            coco_data = json.load(f)
+                    coco_data["annotations"].append({
+                        "id": annotation_id,
+                        "image_id": image_id + 1,
+                        "category_id": category_id,
+                        "bbox": bbox,
+                        "area": bbox[2] * bbox[3],
+                        "iscrowd": 0,
+                    })
+                    annotation_id += 1
 
-        images = coco_data.get("images", [])
-        annotations = coco_data.get("annotations", [])
-        categories = {cat["id"]: cat["name"] for cat in coco_data.get("categories", [])}
+        output_file = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+        if output_file:
+            with open(output_file, "w", encoding="utf-8") as f:
+                json.dump(coco_data, f, indent=4, ensure_ascii=False)
 
-        if not images:
-            print("Brak obrazów w pliku COCO")
-            return
+    def load_coco(self, image_files, annotations, classes, image_data, class_listbox):
+        """Wczytuje adnotacje, dane i EXIF z pliku COCO."""
+        coco_file = filedialog.askopenfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")])
+        if coco_file:
+            with open(coco_file, "r") as f:
+                coco_data = json.load(f)
 
-        image_info = images[0]
-        image_path = filedialog.askopenfilename(
-            title="Wybierz obraz",
-            initialfile=image_info["file_name"]
-        )
-        if not image_path:
-            return
+            classes.clear()
+            classes.extend([category["name"] for category in coco_data["categories"]])
+            class_listbox.delete(0, tk.END)
+            for class_name in classes:
+                class_listbox.insert(tk.END, class_name)
 
-        img = Image.open(image_path)
-        self.photo_img = ImageTk.PhotoImage(img)
-        self.canvas.delete("all")
-        self.canvas.create_image(0, 0, anchor="nw", image=self.photo_img)
+            annotations.clear()
+            for image_data_entry in coco_data["images"]:
+                image_filename = image_data_entry["file_name"]
+                annotations[image_filename] = []
 
-        for annotation in annotations:
-            if annotation["image_id"] == image_info["id"]:
-                bbox = annotation["bbox"]
-                x1, y1, x2, y2 = bbox[0], bbox[1], bbox[0] + bbox[2], bbox[1] + bbox[3]
-                category_name = categories.get(annotation["category_id"], "Unknown")
-                self.canvas.create_rectangle(x1, y1, x2, y2, outline="red", width=2)
-                self.canvas.create_text(x1, y1 - 10, text=category_name, anchor="sw", fill="red")
+            for annotation_data in coco_data["annotations"]:
+                image_id = annotation_data["image_id"]
+                image_filename = next((img["file_name"] for img in coco_data["images"] if img["id"] == image_id), None)
+                if image_filename:
+                    annotations[image_filename].append({
+                        "bbox": annotation_data["bbox"],
+                        "class": classes[annotation_data["category_id"] - 1]
+                    })
+            image_data.clear()
 
+            # Wczytywanie danych dodatkowych i EXIF z pliku COCO
+            for image_filename, img_data in coco_data["info"]["images_data"].items():
+                image_data[image_filename] = {
+                    "predefined_data": img_data.get("predefined_data", {}),
+                    "dynamic_data": img_data.get("dynamic_data", {}),
+                    "exif": img_data.get("exif", {}),
+                    "undo_stack": [],
+                    "redo_stack": []
+                }
 
+            self.coco_folder = os.path.dirname(coco_file)
+            return True
+        return False
