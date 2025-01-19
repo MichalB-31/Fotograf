@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import messagebox
 import customtkinter as ctk
 import numpy as np
+from PIL import Image
 
 from AnnotationManager import AnnotationManager
 from CocoManager import CocoManager
@@ -45,6 +46,16 @@ class App:
 
     def create_widgets(self):
         """Tworzy i rozmieszcza widgety w oknie aplikacji."""
+        folder_icon = ctk.CTkImage(Image.open("folder.png"))
+        add_class_icon = ctk.CTkImage(Image.open("add_class.png"))
+        undo_icon = ctk.CTkImage(Image.open("undo.png"))
+        redo_icon = ctk.CTkImage(Image.open("redo.png"))
+        save_coco_icon = ctk.CTkImage(Image.open("json.png"))
+        load_from_coco = ctk.CTkImage(Image.open("file.png"))
+        stats_icon = ctk.CTkImage(Image.open("statistics.png"))
+        exif_icon = ctk.CTkImage(Image.open("exif.png"))
+        add_field_icon = ctk.CTkImage(Image.open("add.png"))
+        exit_icon = ctk.CTkImage(Image.open("exit.png"))
         # Kontener lewej strony
         left_frame = ctk.CTkFrame(self.master, width=140, corner_radius=0)
         left_frame.grid(row=0, column=0, padx=0, pady=5, sticky="nsew")
@@ -52,7 +63,7 @@ class App:
         left_frame.grid_rowconfigure(4, weight=1)
 
         # Przycisk do wczytywania folderu
-        self.file_button = ctk.CTkButton(left_frame, text="Wczytaj folder 📄", command=self.folder_manager.load_folder,
+        self.file_button = ctk.CTkButton(left_frame, text="Wczytaj folder",image= folder_icon, command=self.folder_manager.load_folder,
                                          width=140, height=30)
         self.file_button.grid(row=0, column=0, padx=5, pady=(10, 5), sticky="ew")
 
@@ -68,7 +79,7 @@ class App:
                                         selectforeground="white", bg="#2E2E2E", fg="#DCE4EE", activestyle="none")
         self.class_listbox.grid(row=4, column=0, padx=5, pady=(0, 10), sticky="nsew")
         self.class_listbox.bind("<<ListboxSelect>>", self.annotation_manager.on_class_select)
-        self.add_class_button = ctk.CTkButton(left_frame, text="Dodaj klasę 🦫",
+        self.add_class_button = ctk.CTkButton(left_frame, text="Dodaj klasę", image=add_class_icon,
                                               command=self.annotation_manager.add_class, width=140,
                                               height=30)
         self.add_class_button.grid(row=3, column=0, padx=5, pady=(10, 5), sticky="ew")
@@ -90,9 +101,9 @@ class App:
                               lambda event: self.annotation_manager.on_mouse_motion(event))
 
         # -Przyciski cofnij i przywróć
-        self.undo_button = ctk.CTkButton(left_frame, text="Cofnij ⟲", command=self.undo, width=140, height=30)
+        self.undo_button = ctk.CTkButton(left_frame, text="Cofnij", image=undo_icon, command=self.undo, width=140, height=30)
         self.undo_button.grid(row=5, column=0, padx=5, pady=(10, 5), sticky="ew")
-        self.redo_button = ctk.CTkButton(left_frame, text="Przywróć ⟳", command=self.redo, width=140, height=30)
+        self.redo_button = ctk.CTkButton(left_frame, text="Przywróć", image=redo_icon, command=self.redo, width=140, height=30)
         self.redo_button.grid(row=6, column=0, padx=5, pady=(10, 10), sticky="ew")
 
         # Prawy panel aplikacji
@@ -105,38 +116,44 @@ class App:
         self.predefined_data_frame.grid(row=5, column=0, padx=0, pady=5, sticky="w")
         self.data_manager.create_predefined_data_fields()
 
-        self.save_to_coco_button = self.stats_button = ctk.CTkButton(right_frame, text="Zapisz do COCO 📈", command=self.save_coco, width=140,
+        self.save_to_coco_button = self.stats_button = ctk.CTkButton(right_frame, text="Zapisz do COCO", image=save_coco_icon, command=self.save_coco, width=140,
                                           height=30)
         self.stats_button.grid(row=0, column=0, padx=5, pady=(10, 5), sticky="ew")
 
-        self.load_from_coco_button = self.stats_button = ctk.CTkButton(right_frame, text="Wczytaj COCO 📈",
+        self.load_from_coco_button = self.stats_button = ctk.CTkButton(right_frame, text="Wczytaj COCO", image=load_from_coco,
                                                                      command=self.load_coco, width=140,
                                                                      height=30)
         self.load_from_coco_button.grid(row=1, column=0, padx=5, pady=(10, 5), sticky="ew")
 
-        self.add_field_button = ctk.CTkButton(right_frame, text="Dodaj pole ✏️",
+        self.add_field_button = ctk.CTkButton(right_frame, text="Dodaj pole", image=add_field_icon,
                                               command=self.data_manager.add_dynamic_field, width=10,
                                               height=30)
         self.add_field_button.grid(row=4, column=0, padx=5, pady=(10, 5), sticky="ew")
 
-        self.stats_button = ctk.CTkButton(right_frame, text="Statystyki 📈", command=self.show_stats, width=140,
+        self.stats_button = ctk.CTkButton(right_frame, text="Statystyki", image=stats_icon, command=self.show_stats, width=140,
                                           height=30)
         self.stats_button.grid(row=2, column=0, padx=5, pady=(10, 5), sticky="ew")
 
-        self.exif_button = ctk.CTkButton(right_frame, text="Pokaż EXIF 🔓", command=self.data_manager.show_exif,
+        self.exif_button = ctk.CTkButton(right_frame, text="Pokaż EXIF", image=exif_icon, command=self.data_manager.show_exif,
                                          width=140,
                                          height=30)
         self.exif_button.grid(row=3, column=0, padx=5, pady=(10, 5), sticky="ew")
 
-        self.exit_button = ctk.CTkButton(right_frame, fg_color="red", text="Wyjście ❌", command=self.master.quit,
+        self.exit_button = ctk.CTkButton(right_frame, fg_color="grey", hover_color="red",
+                                         text="Wyjście", image=exit_icon, command=self.on_closing,
                                          width=140,
                                          height=30)
         self.exit_button.grid(row=6, column=0, padx=5, pady=(10, 10), sticky="sew")
+        self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def configure_layout(self):
         self.master.grid_rowconfigure(0, weight=1)
         self.master.grid_columnconfigure(1, weight=1)
         self.master.grid_columnconfigure(5, weight=0)
+
+    def on_closing(self):
+        if messagebox.askokcancel("Zamknij", "Uwaga! Niezapisane dane zostaną utracone. Czy na pewno chcesz zamknąć?"):
+            self.master.destroy()
 
     def save_coco(self):
         """Zapisd do formatu COCO """
