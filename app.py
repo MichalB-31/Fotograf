@@ -26,9 +26,9 @@ class App:
         self.annotations = {}
         self.classes = []
         self.active_class = tk.StringVar(value="")
-        self.predefined_fields = ["Rodzaj kamery", "Miejsce", "Data wykonania"]
-        self.dynamic_fields = {}
+
         self.image_data = {} # Dane dla każdego obrazka
+
 
         # Inicjalizacja managerów
         self.history_manager = HistoryManager()
@@ -38,10 +38,7 @@ class App:
         self.image_manager = ImageManager(self)
         self.data_manager = DataManager(self)
 
-        # Inicjalizacja komponentów interfejsu użytkownika
         self.create_widgets()
-
-        # Konfiguracja layoutu
         self.configure_layout()
 
     def create_widgets(self):
@@ -125,10 +122,6 @@ class App:
                                                                      height=30)
         self.load_from_coco_button.grid(row=1, column=0, padx=5, pady=(10, 5), sticky="ew")
 
-        self.add_field_button = ctk.CTkButton(right_frame, text="Dodaj pole", image=add_field_icon,
-                                              command=self.data_manager.add_dynamic_field, width=10,
-                                              height=30)
-        self.add_field_button.grid(row=4, column=0, padx=5, pady=(10, 5), sticky="ew")
 
         self.stats_button = ctk.CTkButton(right_frame, text="Statystyki", image=stats_icon, command=self.show_stats, width=140,
                                           height=30)
@@ -253,11 +246,6 @@ class App:
                     for field_name, value in self.image_data[image_filename]["predefined_data"].items():
                         if field_name in self.data_manager.predefined_entries:
                             self.data_manager.predefined_entries[field_name].insert(0, value)
-                if "dynamic_data" in self.image_data[image_filename]:
-                    for field_name, value in self.image_data[image_filename]["dynamic_data"].items():
-                        if field_name in self.data_manager.dynamic_fields:
-                            self.data_manager.dynamic_fields[field_name].delete(0, tk.END)
-                            self.data_manager.dynamic_fields[field_name].insert(0, value)
             self.image_manager.draw_annotations()
 
     def redo(self):
@@ -299,9 +287,5 @@ class App:
                     for field_name, value in self.image_data[image_filename]["predefined_data"].items():
                         if field_name in self.data_manager.predefined_entries:
                             self.data_manager.predefined_entries[field_name].insert(0, value)
-                if "dynamic_data" in self.image_data[image_filename]:
-                    for field_name, value in self.image_data[image_filename]["dynamic_data"].items():
-                        if field_name in self.data_manager.dynamic_fields:
-                            self.data_manager.dynamic_fields[field_name].delete(0, tk.END)
-                            self.data_manager.dynamic_fields[field_name].insert(0, value)
+
             self.image_manager.draw_annotations()

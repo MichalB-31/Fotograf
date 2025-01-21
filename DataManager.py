@@ -2,14 +2,17 @@ import tkinter as tk
 from tkinter import messagebox
 from tkcalendar import DateEntry
 import customtkinter as ctk
+from PIL import ExifTags, Image
+import re
 
 class DataManager:
     """Klasa do zarządzania danymi dodatkowymi i EXIF."""
     def __init__(self, app):
         self.app = app
-        self.predefined_fields = self.app.predefined_fields
+        self.predefined_fields = ["Marka", "Model", "Opis", "Autor", "Czas naświetlania", "Przesłona",
+                                  "ISO", "Czas otwarcia migawki", "Oprogramowanie", "Data wykonania"]
         self.predefined_entries = {}
-        self.dynamic_fields = self.app.dynamic_fields
+        self.dynamic_fields = {}
 
     def create_predefined_data_fields(self):
         """Tworzy pola do wprowadzania predefiniowanych danych."""
@@ -29,50 +32,9 @@ class DataManager:
 
         self.app.predefined_data_frame.grid_columnconfigure(1, weight=1)
 
-    def add_dynamic_field(self):
-        """Dodaje nowe pole do wprowadzania danych dynamicznych."""
-        dialog = ctk.CTkInputDialog(text="Nazwa nowego pola:", title="Dodaj pole")
-
-        screen_width = dialog.winfo_screenwidth()
-        screen_height = dialog.winfo_screenheight()
-        dialog_width = 300
-        dialog_height = 150
-        dialog.geometry(f"{dialog_width}x{dialog_height}")
-        x = (screen_width - dialog_width) // 2
-        y = (screen_height - dialog_height) // 2
-        dialog.geometry(f"+{x}+{y}")
-
-        field_name = dialog.get_input()
-
-        if field_name:
-            if field_name in self.predefined_fields or field_name in self.dynamic_fields:
-                messagebox.showerror("Błąd", f"Pole o nazwie '{field_name}' już istnieje.")
-                return
-
-            next_row = len(self.predefined_fields) + len(self.dynamic_fields) + 1
-            label = ctk.CTkLabel(self.app.predefined_data_frame, text=f"{field_name}:")
-            label.grid(row=next_row, column=0, sticky="w", padx=5, pady=2)
-            entry = ctk.CTkEntry(self.app.predefined_data_frame)
-            entry.grid(row=next_row, column=1, sticky="ew", padx=5, pady=2)
-            entry.bind("<KeyRelease>", self.save_current_image_data)
-            self.dynamic_fields[field_name] = entry
-            self.save_current_image_data()
-
     def clear_data_fields(self):
-        """Czyści pola danych."""
-        self.clear_predefined_data_fields()
-        self.clear_dynamic_fields()
-
-    def clear_predefined_data_fields(self):
         for entry in self.predefined_entries.values():
             entry.delete(0, tk.END)
-
-    def clear_dynamic_fields(self):
-        for field_name, entry in self.dynamic_fields.items():
-            label = entry.master.grid_slaves(row=entry.grid_info()['row'], column=0)[0]
-            label.grid_forget()
-            entry.grid_forget()
-        self.dynamic_fields.clear()
 
     def save_current_image_data(self, event=None):
         """Zapisuje dane wprowadzone w polach do słownika"""
@@ -140,3 +102,7 @@ class DataManager:
             text_area.insert(tk.END, f"{tag}: {value}\n")
         text_area.configure(state="disabled")
         exif_window.grab_set()
+
+
+
+

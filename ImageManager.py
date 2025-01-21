@@ -16,11 +16,11 @@ class ImageManager:
             label_width = self.app.image_label.winfo_width()
             label_height = self.app.image_label.winfo_height()
 
-            # Wyśrodkowanie obrazu
+            # Wyśrodkowanie obrazu?
             x = (label_width - img_width) // 2
             y = (label_height - img_height) // 2
 
-            # Skalowanie obrazu
+            # Skalowanie obrazu?
             if img_width > label_width or img_height > label_height:
                 if img_width > img_height:
                     new_width = label_width
@@ -35,6 +35,7 @@ class ImageManager:
 
             self.current_image_tk = ImageTk.PhotoImage(image=Image.fromarray(self.app.current_image))
             self.app.image_label.create_image(x, y, anchor=tk.NW, image=self.current_image_tk)
+
 
     def draw_annotations(self):
         """Rysuje adnotacje"""
@@ -78,8 +79,8 @@ class ImageManager:
         self.clear_corner_circles()
 
         corners = [
-            (bbox[0], bbox[1]),  # Top-left
-            (bbox[0] + bbox[2], bbox[1] + bbox[3])  # Bottom-right
+            (bbox[0], bbox[1]),
+            (bbox[0] + bbox[2], bbox[1] + bbox[3])
         ]
 
         for x, y in corners:

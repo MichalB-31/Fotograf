@@ -22,6 +22,12 @@ class FolderManager:
             self.app.current_image_index = 0
             self.load_image()
             self.app.annotations = {}
+        else:  # Dodany blok else
+            self.app.current_image = None
+            self.app.image_label.delete("all")
+            self.app.current_image_index = 0
+            self.app.image_files = []
+            self.app.image_listbox.delete(0, tk.END)
 
     def load_image(self):
         """ Wyświetl wybrany obraz."""
@@ -59,13 +65,13 @@ class FolderManager:
             self.app.image_manager.display_image()
             self.app.data_manager.clear_data_fields()
 
-            # Inicjalizacja undo_stack i redo_stack dla obrazka, jeśli nie istnieją
+            # Inicjalizacja undo_stack i redo_stack
             if "undo_stack" not in self.app.image_data.get(image_filename, {}):
                 self.app.image_data.setdefault(image_filename, {})["undo_stack"] = []
             if "redo_stack" not in self.app.image_data.get(image_filename, {}):
                 self.app.image_data.setdefault(image_filename, {})["redo_stack"] = []
 
-            # Wczytywanie zapisanych danych dla obrazka
+            # Wczytywanie zapisanych danych
             if image_filename in self.app.image_data:
                 image_data = self.app.image_data[image_filename]
                 if "predefined_data" in image_data:
@@ -73,22 +79,8 @@ class FolderManager:
                     for field_name, value in predefined_data.items():
                         if field_name in self.app.data_manager.predefined_entries:
                             self.app.data_manager.predefined_entries[field_name].insert(0, value)
-                if "dynamic_data" in image_data:
-                    dynamic_data = image_data["dynamic_data"]
-                    for field_name, value in dynamic_data.items():
-                        if field_name not in self.app.data_manager.dynamic_fields:
-                            next_row = len(self.app.data_manager.predefined_fields) + len(
-                                self.app.data_manager.dynamic_fields)
-                            label = tk.Label(self.app.data_manager.predefined_data_frame, text=f"{field_name}:")
-                            label.grid(row=next_row, column=0, sticky="w")
-                            entry = tk.Entry(self.app.data_manager.predefined_data_frame)
-                            entry.grid(row=next_row, column=1, sticky="ew")
-                            entry.bind("<KeyRelease>", self.app.data_manager.save_current_image_data)
-                            self.app.data_manager.dynamic_fields[field_name] = entry
-                        if field_name in self.app.data_manager.dynamic_fields:
-                            self.app.data_manager.dynamic_fields[field_name].delete(0, tk.END)
-                            self.app.data_manager.dynamic_fields[field_name].insert(0, value)
-            # Ustaw adnotacje dla danego obrazka
+
+            # Ustaw adnotacje
             if image_filename not in self.app.annotations:
                 self.app.annotations[image_filename] = []
 

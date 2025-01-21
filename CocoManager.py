@@ -31,7 +31,6 @@ class CocoManager:
                 "images_data": {
                     image_filename: {
                         "predefined_data": image_data.get(image_filename, {}).get("predefined_data", {}),
-                        "dynamic_data": image_data.get(image_filename, {}).get("dynamic_data", {}),
                         "exif": serialize_exif(image_data.get(image_filename, {}).get("exif", {}))
                     } for image_filename in image_files
                 }
@@ -115,7 +114,6 @@ class CocoManager:
             for image_filename, img_data in coco_data["info"]["images_data"].items():
                 image_data[image_filename] = {
                     "predefined_data": img_data.get("predefined_data", {}),
-                    "dynamic_data": img_data.get("dynamic_data", {}),
                     "exif": img_data.get("exif", {}),
                     "undo_stack": [],
                     "redo_stack": []

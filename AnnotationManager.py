@@ -250,6 +250,11 @@ class AnnotationManager:
                     self.app.annotations[image_filename][self.selected_annotation_index]["class"] = new_class_name
                     self.app.image_manager.draw_annotations()
 
+                    # Dodanie nowej klasy do listyjeśli nie istnieje
+                    if new_class_name not in self.app.classes:
+                        self.app.classes.append(new_class_name)
+                        self.app.class_listbox.insert(tk.END, new_class_name)
+
     def delete_selected_annotation(self):
         """Usuń wybraną adnotacje"""
         if self.selected_annotation_index is not None and self.app.image_files:

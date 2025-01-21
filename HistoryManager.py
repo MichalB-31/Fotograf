@@ -33,3 +33,4 @@ class HistoryManager:
         """Dodanie edycji danych do historii."""
         self.undo_stack.append(("edit_data", image_filename, old_predefined_data, old_dynamic_data, new_predefined_data, new_dynamic_data))
         self.redo_stack.clear()
+
