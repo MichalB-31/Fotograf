@@ -1,7 +1,7 @@
 import pytest
 import os
 from unittest.mock import patch
-from FolderManager import FolderManager
+from controller.FolderManager import FolderManager
 from PIL import Image
 
 @pytest.fixture

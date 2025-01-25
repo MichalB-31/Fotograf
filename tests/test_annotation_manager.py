@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from AnnotationManager import AnnotationManager
-from PIL import Image
+from controller.AnnotationManager import AnnotationManager
 import tkinter as tk
 import cv2
 import numpy as np

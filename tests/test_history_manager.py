@@ -1,5 +1,5 @@
 import pytest
-from HistoryManager import HistoryManager
+from controller.HistoryManager import HistoryManager
 
 @pytest.fixture
 def history_manager():

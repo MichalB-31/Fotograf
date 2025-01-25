@@ -5,12 +5,12 @@ import customtkinter as ctk
 import numpy as np
 from PIL import Image
 
-from AnnotationManager import AnnotationManager
-from CocoManager import CocoManager
-from FolderManager import FolderManager
-from ImageManager import ImageManager
-from DataManager import DataManager
-from HistoryManager import HistoryManager
+from controller.AnnotationManager import AnnotationManager
+from controller.CocoManager import CocoManager
+from controller.FolderManager import FolderManager
+from controller.ImageManager import ImageManager
+from controller.DataManager import DataManager
+from controller.HistoryManager import HistoryManager
 
 class App:
     """ Integracja komponentó i logiką aplikacji. """
@@ -43,16 +43,16 @@ class App:
 
     def create_widgets(self):
         """Tworzy i rozmieszcza widgety w oknie aplikacji."""
-        folder_icon = ctk.CTkImage(Image.open("folder.png"))
-        add_class_icon = ctk.CTkImage(Image.open("add_class.png"))
-        undo_icon = ctk.CTkImage(Image.open("undo.png"))
-        redo_icon = ctk.CTkImage(Image.open("redo.png"))
-        save_coco_icon = ctk.CTkImage(Image.open("json.png"))
-        load_from_coco = ctk.CTkImage(Image.open("file.png"))
-        stats_icon = ctk.CTkImage(Image.open("statistics.png"))
-        exif_icon = ctk.CTkImage(Image.open("exif.png"))
-        add_field_icon = ctk.CTkImage(Image.open("add.png"))
-        exit_icon = ctk.CTkImage(Image.open("exit.png"))
+        folder_icon = ctk.CTkImage(Image.open("resources/folder.png"))
+        add_class_icon = ctk.CTkImage(Image.open("resources/add_class.png"))
+        undo_icon = ctk.CTkImage(Image.open("resources/undo.png"))
+        redo_icon = ctk.CTkImage(Image.open("resources/redo.png"))
+        save_coco_icon = ctk.CTkImage(Image.open("resources/json.png"))
+        load_from_coco = ctk.CTkImage(Image.open("resources/file.png"))
+        stats_icon = ctk.CTkImage(Image.open("resources/statistics.png"))
+        exif_icon = ctk.CTkImage(Image.open("resources/exif.png"))
+        add_field_icon = ctk.CTkImage(Image.open("resources/add.png"))
+        exit_icon = ctk.CTkImage(Image.open("resources/exit.png"))
         # Kontener lewej strony
         left_frame = ctk.CTkFrame(self.master, width=140, corner_radius=0)
         left_frame.grid(row=0, column=0, padx=0, pady=5, sticky="nsew")

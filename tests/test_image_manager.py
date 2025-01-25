@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import MagicMock
-from ImageManager import ImageManager
+from controller.ImageManager import ImageManager
 import tkinter as tk
 import cv2
 import numpy as np

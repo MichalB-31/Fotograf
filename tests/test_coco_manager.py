@@ -2,7 +2,7 @@ import pytest
 import json
 import os
 from unittest.mock import patch
-from CocoManager import CocoManager
+from controller.CocoManager import CocoManager
 import cv2
 import numpy as np
 

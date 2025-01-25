@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import patch
-from DataManager import DataManager
+from controller.DataManager import DataManager
 import tkinter as tk
 
 @pytest.fixture
